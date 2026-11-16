@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SayurFresh - Laporan Penjualan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 12px;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .print-container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th,
+            td {
+                border: 1px solid #94a3b8 !important;
+                padding: 8px !important;
+            }
+
+            thead th {
+                background-color: #f1f5f9 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        .print-only {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 font-sans text-slate-800">
+
+    <!-- Navbar (Disembunyikan saat dicetak) -->
+    <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center sticky top-0 z-20 no-print">
+        <div class="flex items-center gap-3">
+            <a href="dashboard.html"
+                class="w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg flex items-center justify-center transition"
+                title="Kembali ke Dashboard">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div>
+                <h1 class="font-bold text-slate-800">Laporan Penjualan & Pesanan</h1>
+                <p class="text-xs text-slate-500">SayurFresh Admin</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="dashboard.html"
+                class="text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-2 rounded-lg font-medium transition">
+                <i class="fa-solid fa-gauge mr-1.5"></i> Dashboard
+            </a>
+            <button onclick="window.print()"
+                class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition shadow">
+                <i class="fa-solid fa-print mr-1.5"></i> Cetak Laporan
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl w-full mx-auto px-4 py-8 space-y-6 print-container">
+
+        <!-- Filter Laporan (Disembunyikan saat dicetak) -->
+        <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200 no-print">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Cari Pemesan / Item
+                        Sayur</label>
+                    <input type="text" id="filter-search" oninput="renderReport()"
+                        placeholder="Ketik nama pelanggan atau sayur..."
+                        class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Tanggal Pengambilan</label>
+                    <input type="date" id="filter-date" onchange="renderReport()"
+                        class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div>
+                    <button onclick="resetFilter()"
+                        class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 rounded-lg text-sm transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Area Dokumen Laporan -->
+        <div class="bg-white rounded-xl shadow-sm p-6 md:p-8 border border-slate-200 print-container">
+
+            <!-- Kop Laporan (Muncul saat dicetak & tampil rapi di layar) -->
+            <div
+                class="border-b-2 border-slate-800 pb-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2">
+                <div>
+                    <div class="flex items-center gap-2 text-emerald-700 font-extrabold text-xl">
+                        <i class="fa-solid fa-leaf"></i> SAYURFRESH
+                    </div>
+                    <h2 class="text-lg font-bold text-slate-800 mt-1">REKAPITULASI LAPORAN PENJUALAN & BOOKING</h2>
+                    <p id="report-subtitle" class="text-xs text-slate-500">Periode: Semua Transaksi</p>
+                </div>
+                <div class="text-left sm:text-right text-xs text-slate-500">
+                    <p>Dicetak oleh: <strong id="admin-name" class="text-slate-700">Admin</strong></p>
+                    <p>Tanggal Cetak: <span id="print-date"></span></p>
+                </div>
+            </div>
+
+            <!-- Ringkasan Angka -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <p class="text-xs text-slate-500 uppercase font-semibold">Jumlah Transaksi</p>
+                    <p id="summary-count" class="text-2xl font-bold text-slate-800 mt-1">0 Pesanan</p>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                    <p class="text-xs text-emerald-700 uppercase font-semibold">Total Pendapatan</p>
+                    <p id="summary-total" class="text-2xl font-bold text-emerald-700 mt-1">Rp 0</p>
+                </div>
+            </div>
+
+            <!-- Tabel Laporan -->
+            <div id="loading-state" class="text-center py-10 text-slate-500 text-sm">
+                <i class="fa-solid fa-spinner fa-spin text-2xl text-emerald-600 mb-2"></i>
+                <p>Mengambil data laporan dari Google Sheets...</p>
+            </div>
+
+            <div id="table-container" class="hidden overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-700 border-b border-slate-300">
+                            <th class="p-3 w-12 text-center">No</th>
+                            <th class="p-3">Waktu Order</th>
+                            <th class="p-3">Nama Pemesan</th>
+                            <th class="p-3">Tgl Ambil</th>
+                            <th class="p-3">Rincian Sayuran</th>
+                            <th class="p-3 text-right">Subtotal (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-tbody" class="divide-y divide-slate-200">
+                        <!-- Diisi oleh JavaScript -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-slate-100 font-bold text-slate-800 border-t-2 border-slate-400">
+                            <td colspan="5" class="p-3 text-right uppercase text-xs">Grand Total Pendapatan:</td>
+                            <td id="table-grand-total" class="p-3 text-right text-emerald-700 text-base">Rp 0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Area Tanda Tangan (Hanya muncul saat di-print) -->
+            <div class="print-only mt-12 pt-6">
+                <div class="flex justify-end">
+                    <div class="text-center w-48">
+                        <p class="text-xs mb-16">Mengetahui, Owner SayurFresh</p>
+                        <p class="font-bold text-sm border-t border-slate-800 pt-1" id="sign-name">Administrator</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyupRJJQrb2FtqIYxKUlCzVRo1sO1Zfraqb0x_2UoQ3wBliSrTJE0s9tsaF09xDTIl4Dw/exec";
+        let allOrders = [];
+
+        // Proteksi halaman: hanya admin yang bisa membuka laporan
+        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        if (!currentUser || currentUser.role !== 'admin') {
+            window.location.href = "index.html";
+        } else {
+            document.getElementById('admin-name').innerText = currentUser.name;
+            document.getElementById('sign-name').innerText = currentUser.name;
+        }
+
+        document.getElementById('print-date').innerText = new Date().toLocaleString('id-ID');
+
+        async function loadOrders() {
+            try {
+                const res = await fetch(WEB_APP_URL + "?action=getData");
+                const data = await res.json();
+                if (data.status === 'success') {
+                    allOrders = (data.orders || []).reverse();
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Gagal memuat data laporan dari server.");
+            } finally {
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('table-container').classList.remove('hidden');
+                renderReport();
+            }
+        }
+
+        function resetFilter() {
+            document.getElementById('filter-search').value = "";
+            document.getElementById('filter-date').value = "";
+            renderReport();
+        }
+
+        function renderReport() {
+            const keyword = document.getElementById('filter-search').value.toLowerCase();
+            const dateVal = document.getElementById('filter-date').value;
+
+            const filtered = allOrders.filter(o => {
+                const matchText = String(o.customername || "").toLowerCase().includes(keyword) ||
+                    String(o.itemssummary || "").toLowerCase().includes(keyword);
+
+                // Normalisasi format tanggal pengambilan dari Google Sheets
+                let orderPickup = String(o.pickupdate || "");
+                if (orderPickup.includes("T")) {
+                    orderPickup = orderPickup.split("T")[0];
+                }
+                const matchDate = !dateVal || orderPickup === dateVal;
+
+                return matchText && matchDate;
+            });
+
+            // Update subjudul periode cetak
+            const subtitle = document.getElementById('report-subtitle');
+            if (dateVal) {
+                subtitle.innerText = `Filter Tanggal Pengambilan: ${dateVal}`;
+            } else if (keyword) {
+                subtitle.innerText = `Filter Pencarian: "${keyword}"`;
+            } else {
+                subtitle.innerText = "Periode: Semua Transaksi";
+            }
+
+            const tbody = document.getElementById('report-tbody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 italic">Tidak ada data pesanan yang sesuai filter.</td></tr>`;
+            } else {
+                tbody.innerHTML = filtered.map((o, idx) => {
+                    let cleanDate = String(o.pickupdate || "-");
+                    if (cleanDate.includes("T")) cleanDate = cleanDate.split("T")[0];
+
+                    return `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 text-center text-slate-500">${idx + 1}</td>
+                            <td class="p-3 text-xs text-slate-500">${o.timestamp || '-'}</td>
+                            <td class="p-3 font-semibold text-slate-800">${o.customername || '-'}</td>
+                            <td class="p-3 font-medium text-slate-700">${cleanDate}</td>
+                            <td class="p-3 text-xs text-slate-600">${o.itemssummary || '-'}</td>
+                            <td class="p-3 text-right font-bold text-slate-800">Rp ${Number(o.total || 0).toLocaleString('id-ID')}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            const grandTotal = filtered.reduce((sum, o) => sum + Number(o.total || 0), 0);
+            document.getElementById('summary-count').innerText = `${filtered.length} Pesanan`;
+            document.getElementById('summary-total').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+            document.getElementById('table-grand-total').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+        }
+
+        loadOrders();
+    </script>
+</body>
+
+</html>

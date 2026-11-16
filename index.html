@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SayurFresh - Login & Registrasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-emerald-600 font-sans text-slate-800">
+
+    <div class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden p-8">
+            <div class="text-center mb-8">
+                <div
+                    class="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full text-2xl mb-3 shadow-inner">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">SayurFresh</h2>
+                <p class="text-sm text-slate-500">Silakan login atau daftar untuk mulai memesan sayur</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex border-b border-slate-200 mb-6">
+                <button onclick="switchTab('login')" id="tab-login"
+                    class="flex-1 pb-3 text-sm font-semibold text-emerald-600 border-b-2 border-emerald-600 transition">Masuk</button>
+                <button onclick="switchTab('register')" id="tab-register"
+                    class="flex-1 pb-3 text-sm font-semibold text-slate-400 border-b-2 border-transparent transition">Daftar
+                    Member</button>
+            </div>
+
+            <!-- Form Login -->
+            <div id="form-login-container">
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Username</label>
+                        <input type="text" id="login-user" required
+                            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Password</label>
+                        <input type="password" id="login-pass" required
+                            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                    </div>
+                    <button type="submit" id="btn-login"
+                        class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-white font-medium py-2.5 rounded-lg transition shadow-md">Masuk
+                        ke Sistem</button>
+                </form>
+                <div class="mt-4 text-xs text-center text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <strong>© 2026</strong> <code>BY</code> | <code>MITRA RATING</code>
+                </div>
+            </div>
+
+            <!-- Form Register -->
+            <div id="form-register-container" class="hidden">
+                <form onsubmit="handleRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Nama Lengkap</label>
+                        <input type="text" id="reg-name" required
+                            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Username Baru</label>
+                        <input type="text" id="reg-user" required
+                            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Password</label>
+                        <input type="password" id="reg-pass" required
+                            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                    </div>
+                    <button type="submit" id="btn-reg"
+                        class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-white font-medium py-2.5 rounded-lg transition shadow-md">Daftar
+                        Member Baru</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyupRJJQrb2FtqIYxKUlCzVRo1sO1Zfraqb0x_2UoQ3wBliSrTJE0s9tsaF09xDTIl4Dw/exec";
+
+        // Jika sudah login, langsung arahkan ke dashboard
+        if (localStorage.getItem('currentUser')) {
+            window.location.href = "dashboard.html";
+        }
+
+        function switchTab(tab) {
+            const loginContainer = document.getElementById('form-login-container');
+            const regContainer = document.getElementById('form-register-container');
+            const tabLogin = document.getElementById('tab-login');
+            const tabReg = document.getElementById('tab-register');
+
+            if (tab === 'login') {
+                loginContainer.classList.remove('hidden');
+                regContainer.classList.add('hidden');
+                tabLogin.className = "flex-1 pb-3 text-sm font-semibold text-emerald-600 border-b-2 border-emerald-600 transition";
+                tabReg.className = "flex-1 pb-3 text-sm font-semibold text-slate-400 border-b-2 border-transparent transition";
+            } else {
+                loginContainer.classList.add('hidden');
+                regContainer.classList.remove('hidden');
+                tabReg.className = "flex-1 pb-3 text-sm font-semibold text-emerald-600 border-b-2 border-emerald-600 transition";
+                tabLogin.className = "flex-1 pb-3 text-sm font-semibold text-slate-400 border-b-2 border-transparent transition";
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-user').value.trim();
+            const password = document.getElementById('login-pass').value;
+            const btn = document.getElementById('btn-login');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Memeriksa...';
+
+            try {
+                const res = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'login', username, password })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    window.location.href = "dashboard.html";
+                } else {
+                    alert(data.message || 'Username atau Password salah!');
+                    btn.disabled = false;
+                    btn.innerText = "Masuk ke Sistem";
+                }
+            } catch (err) {
+                alert('Gagal terhubung ke Google Sheets. Periksa koneksi atau URL Web App Anda.');
+                btn.disabled = false;
+                btn.innerText = "Masuk ke Sistem";
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value.trim();
+            const username = document.getElementById('reg-user').value.trim();
+            const password = document.getElementById('reg-pass').value;
+            const btn = document.getElementById('btn-reg');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mendaftarkan...';
+
+            try {
+                const res = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'registerUser', name, username, password, role: 'member' })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    alert('Pendaftaran berhasil! Silakan login.');
+                    e.target.reset();
+                    switchTab('login');
+                } else {
+                    alert(data.message || 'Gagal mendaftar!');
+                }
+            } catch (err) {
+                alert('Gagal terhubung ke Google Sheets.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Daftar Member Baru";
+            }
+        }
+    </script>
+</body>
+
+</html>
